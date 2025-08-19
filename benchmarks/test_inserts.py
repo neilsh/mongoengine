@@ -1,14 +1,13 @@
+import os
 import pytest
-from pymongo import MongoClient, WriteConcern
+from pymongo import WriteConcern
 
 from mongoengine import DictField, Document
 
 
 # PyMongo benchmarks
-def test_pymongo_insert_w1(benchmark):
-    client = MongoClient(w=1, host="localhost", directConnection=True)
-    client.drop_database("mongoengine_benchmark_test")
-    db = client.mongoengine_benchmark_test
+def test_pymongo_insert_w1(benchmark, pymongo_client):
+    db = pymongo_client.mongoengine_benchmark_test
     noddy = db.noddy
 
     def insert():
@@ -18,13 +17,10 @@ def test_pymongo_insert_w1(benchmark):
         noddy.insert_one(example)
 
     benchmark(insert)
-    client.close()
 
 
-def test_pymongo_insert_w0(benchmark):
-    client = MongoClient(w=0, host="localhost", directConnection=True)
-    client.drop_database("mongoengine_benchmark_test")
-    db = client.mongoengine_benchmark_test
+def test_pymongo_insert_w0(benchmark, pymongo_client):
+    db = pymongo_client.mongoengine_benchmark_test
     noddy = db.noddy.with_options(write_concern=WriteConcern(w=0))
 
     def insert():
@@ -34,7 +30,6 @@ def test_pymongo_insert_w0(benchmark):
         noddy.insert_one(example)
 
     benchmark(insert)
-    client.close()
 
 
 # MongoEngine benchmarks
