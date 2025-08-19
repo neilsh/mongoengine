@@ -22,7 +22,7 @@ jobs:
           pip install -e '.[test]'
       - name: Run benchmark (CPU-based timer)
         run: |
-          pytest --benchmark-json output.json --benchmark-timer=time.process_time benchmarks/
+          pytest -x -v --benchmark-json output.json --benchmark-timer=time.process_time benchmarks/
       - name: Store benchmark result
         uses: rhysd/github-action-benchmark@v1
         with:
