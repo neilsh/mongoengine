@@ -1,6 +1,5 @@
-from timeit import repeat
-
 import mongoengine
+import pytest
 from mongoengine import (
     BooleanField,
     Document,
@@ -12,22 +11,14 @@ from mongoengine import (
     StringField,
 )
 
-mongoengine.connect(db="mongoengine_benchmark_test", w=1)
 
-
-def timeit(f, n=10000):
-    return min(repeat(f, repeat=3, number=n)) / float(n)
-
-
-def test_basic():
+def test_basic_doc_initialization(benchmark):
     class Book(Document):
         name = StringField()
         pages = IntField()
         tags = ListField(StringField())
         is_published = BooleanField()
         author_email = EmailField()
-
-    Book.drop_collection()
 
     def init_book():
         return Book(
@@ -38,69 +29,136 @@ def test_basic():
             author_email="alec@example.com",
         )
 
-    print("Doc initialization: %.3fus" % (timeit(init_book, 1000) * 10**6))
+    benchmark(init_book)
 
-    b = init_book()
-    print("Doc getattr: %.3fus" % (timeit(lambda: b.name, 10000) * 10**6))
 
-    print(
-        "Doc setattr: %.3fus"
-        % (timeit(lambda: setattr(b, "name", "New name"), 10000) * 10**6)  # noqa B010
-    )
+def test_basic_doc_get_attr(benchmark):
+    class Book(Document):
+        name = StringField()
 
-    print("Doc to mongo: %.3fus" % (timeit(b.to_mongo, 1000) * 10**6))
+    b = Book(name="Old Name")
 
-    print("Doc validation: %.3fus" % (timeit(b.validate, 1000) * 10**6))
+    def get_attr():
+        return b.name
+
+    benchmark.pedantic(get_attr, iterations=100, rounds=100)
+
+
+def test_basic_doc_set_attr(benchmark):
+    class Book(Document):
+        name = StringField()
+
+    b = Book(name="Old Name")
+
+    def set_attr():
+        b.name = "New Name"
+
+    benchmark.pedantic(set_attr, iterations=100, rounds=100)
+
+
+def test_basic_doc_to_mongo(benchmark):
+    class Book(Document):
+        name = StringField()
+        pages = IntField()
+        tags = ListField(StringField())
+
+    b = Book(name="Test", pages=100, tags=["test"])
+    benchmark(b.to_mongo)
+
+
+def test_basic_doc_validation(benchmark):
+    class Book(Document):
+        name = StringField()
+        pages = IntField()
+        tags = ListField(StringField())
+
+    b = Book(name="Test", pages=100, tags=["test"])
+    benchmark(b.validate)
+
+
+def test_basic_doc_save(benchmark, db):
+    class Book(Document):
+        name = StringField()
+        tags = ListField(StringField())
+
+    Book.drop_collection()
+    b = Book(name="Test", tags=["test"])
 
     def save_book():
         b._mark_as_changed("name")
         b._mark_as_changed("tags")
         b.save()
 
-    print("Save to database: %.3fus" % (timeit(save_book, 100) * 10**6))
+    benchmark(save_book)
 
+
+def test_basic_doc_load_from_son(benchmark):
+    class Book(Document):
+        name = StringField()
+        pages = IntField()
+        tags = ListField(StringField())
+
+    b = Book(name="Test", pages=100, tags=["test"])
     son = b.to_mongo()
-    print("Load from SON: %.3fus" % (timeit(lambda: Book._from_son(son), 1000) * 10**6))
-
-    print("Load from database: %.3fus" % (timeit(lambda: Book.objects[0], 100) * 10**6))
-
-    def create_and_delete_book():
-        b = init_book()
-        b.save()
-        b.delete()
-
-    print(
-        "Init + save to database + delete: %.3fms"
-        % (timeit(create_and_delete_book, 10) * 10**3)
-    )
+    benchmark(lambda: Book._from_son(son))
 
 
-def test_big_doc():
+def test_basic_doc_load_from_db(benchmark, db):
+    class Book(Document):
+        name = StringField()
+
+    Book.drop_collection()
+    Book(name="Test").save()
+    benchmark(lambda: Book.objects[0])
+
+
+def test_basic_doc_create_delete(benchmark, db):
+    class Book(Document):
+        name = StringField()
+
+    Book.drop_collection()
+
+    def create_and_delete():
+        Book(name="test").save()
+        Book.objects.first().delete()
+
+    benchmark(create_and_delete)
+
+
+def test_big_doc_to_mongo(benchmark):
     class Contact(EmbeddedDocument):
         name = StringField()
-        title = StringField()
-        address = StringField()
+
+    class Company(Document):
+        name = StringField()
+        contacts = ListField(EmbeddedDocumentField(Contact))
+
+    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
+    benchmark(company.to_mongo)
+
+
+def test_big_doc_validation(benchmark):
+    class Contact(EmbeddedDocument):
+        name = StringField()
+
+    class Company(Document):
+        name = StringField()
+        contacts = ListField(EmbeddedDocumentField(Contact))
+
+    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
+    benchmark(company.validate)
+
+
+def test_big_doc_save(benchmark, db):
+    class Contact(EmbeddedDocument):
+        name = StringField()
 
     class Company(Document):
         name = StringField()
         contacts = ListField(EmbeddedDocumentField(Contact))
 
     Company.drop_collection()
-
-    def init_company():
-        return Company(
-            name="MongoDB, Inc.",
-            contacts=[
-                Contact(name="Contact %d" % x, title="CEO", address="Address %d" % x)
-                for x in range(1000)
-            ],
-        )
-
-    company = init_company()
-    print("Big doc to mongo: %.3fms" % (timeit(company.to_mongo, 100) * 10**3))
-
-    print("Big doc validation: %.3fms" % (timeit(company.validate, 1000) * 10**3))
-
+    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
     company.save()
 
     def save_company():
@@ -108,29 +166,47 @@ def test_big_doc():
         company._mark_as_changed("contacts")
         company.save()
 
-    print("Save to database: %.3fms" % (timeit(save_company, 100) * 10**3))
+    benchmark(save_company)
 
+
+def test_big_doc_load_from_son(benchmark):
+    class Contact(EmbeddedDocument):
+        name = StringField()
+
+    class Company(Document):
+        name = StringField()
+        contacts = ListField(EmbeddedDocumentField(Contact))
+
+    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
     son = company.to_mongo()
-    print(
-        "Load from SON: %.3fms" % (timeit(lambda: Company._from_son(son), 100) * 10**3)
-    )
-
-    print(
-        "Load from database: %.3fms" % (timeit(lambda: Company.objects[0], 100) * 10**3)
-    )
-
-    def create_and_delete_company():
-        c = init_company()
-        c.save()
-        c.delete()
-
-    print(
-        "Init + save to database + delete: %.3fms"
-        % (timeit(create_and_delete_company, 10) * 10**3)
-    )
+    benchmark(lambda: Company._from_son(son))
 
 
-if __name__ == "__main__":
-    test_basic()
-    print("-" * 100)
-    test_big_doc()
+def test_big_doc_load_from_db(benchmark, db):
+    class Contact(EmbeddedDocument):
+        name = StringField()
+
+    class Company(Document):
+        name = StringField()
+        contacts = ListField(EmbeddedDocumentField(Contact))
+
+    Company.drop_collection()
+    Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)]).save()
+    benchmark(lambda: Company.objects[0])
+
+
+def test_big_doc_create_delete(benchmark, db):
+    class Contact(EmbeddedDocument):
+        name = StringField()
+
+    class Company(Document):
+        name = StringField()
+        contacts = ListField(EmbeddedDocumentField(Contact))
+
+    Company.drop_collection()
+
+    def create_and_delete():
+        Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)]).save()
+        Company.objects.first().delete()
+
+    benchmark(create_and_delete)
