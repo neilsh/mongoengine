@@ -1,0 +1,37 @@
+name: "Benchmark"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  benchmark:
+    name: Run benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # TODO: use version matrix
+          python-version: '3.12'
+      - name: Install Dependencies
+        run: |
+          pip install -e '.[test]'
+      - name: Run benchmark (CPU-based timer)
+        run: |
+          pytest --benchmark-json output.json --benchmark-timer=time.process_time benchmarks/
+      - name: Store benchmark result
+        uses: rhysd/github-action-benchmark@v1
+        with:
+          name: Pytest Benchmark
+          tool: 'pytest'
+          output-file-path: output.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: true

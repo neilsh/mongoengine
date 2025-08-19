@@ -153,3 +153,24 @@ Community
 Contributing
 ============
 We welcome contributions! See the `Contribution guidelines <https://github.com/MongoEngine/mongoengine/blob/master/CONTRIBUTING.rst>`_
+
+Continuous Benchmarking
+=======================
+
+This project uses `pytest-benchmark` in conjunction with GitHub Actions to monitor performance regressions.
+
+Benchmark results are automatically generated and updated on each push to the `main` branch and on pull requests. You can view the latest benchmark results [here](https://mongoengine.github.io/mongoengine/dev/benchmarks/).
+
+To run the benchmarks locally:
+
+.. code-block:: bash
+
+    pytest benchmarks/ 
+
+By default, this will use ``time.perf_counter`` to measure wall time. In shared environments (like GitHub Actions), it can be more reliable to measure CPU time instead. This can be done with the ``--benchmark-timer`` option:
+
+.. code-block:: bash
+
+    pytest benchmarks/ --benchmark-timer=time.process_time
+
+For more details on the benchmarking setup, refer to the [GitHub Action for Continuous Benchmarking documentation](https://github.com/benchmark-action/github-action-benchmark).
