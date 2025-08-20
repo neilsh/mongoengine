@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11']
         mongodb-version: ['7.0']
     steps:
       - uses: actions/checkout@v4
@@ -30,13 +30,13 @@ jobs:
           pip install -e '.[test]'
       - name: Run benchmark (CPU-based timer)
         run: |
-          pytest -x -v --benchmark-json output.json --benchmark-timer=time.process_time benchmarks/
+          pytest -x -v --benchmark-json output-${{ matrix.python-version }}-${{ matrix.mongodb-version }}.json --benchmark-timer=time.process_time benchmarks/
       - name: Store benchmark result
         uses: rhysd/github-action-benchmark@v1
         with:
           name: Pytest Benchmark (python ${{ matrix.python-version }} x mongo ${{ matrix.mongodb-version }})
           tool: 'pytest'
-          output-file-path: output.json
+          output-file-path: output-${{ matrix.python-version }}-${{ matrix.mongodb-version }}.json
           benchmark-data-dir-path: 'dev/bench'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
