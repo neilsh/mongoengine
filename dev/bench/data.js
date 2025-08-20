@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1755649686053,
+  "lastUpdate": 1755649717541,
   "repoUrl": "https://github.com/neilsh/mongoengine",
   "entries": {
     "Pytest Benchmark (python 3.11 x mongo 6.0)": [
@@ -420,6 +420,215 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000021901383799404068",
             "extra": "mean: 444.08193124997837 usec\nrounds: 1760"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "neilsh",
+            "username": "neilsh"
+          },
+          "committer": {
+            "name": "neilsh",
+            "username": "neilsh"
+          },
+          "id": "02d827e88d1171441d594faa4b5104dfb9d3ce36",
+          "message": "feat(benchmarks): add continuous benchmarking",
+          "timestamp": "2025-08-19T22:11:57Z",
+          "url": "https://github.com/neilsh/mongoengine/pull/1/commits/02d827e88d1171441d594faa4b5104dfb9d3ce36"
+        },
+        "date": 1755649716989,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_initialization",
+            "value": 40551.46133348874,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000027184600871392137",
+            "extra": "mean: 24.66002376033159 usec\nrounds: 2904"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_get_attr",
+            "value": 5060774.845113168,
+            "unit": "iter/sec",
+            "range": "stddev: 3.994659756902482e-8",
+            "extra": "mean: 197.5982000000709 nsec\nrounds: 100"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_set_attr",
+            "value": 945895.8006860341,
+            "unit": "iter/sec",
+            "range": "stddev: 3.1170694210630733e-8",
+            "extra": "mean: 1.0571989000001114 usec\nrounds: 100"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_to_mongo",
+            "value": 94729.86131054202,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000012008346645245798",
+            "extra": "mean: 10.556333411296938 usec\nrounds: 25653"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_validation",
+            "value": 169384.33826776387,
+            "unit": "iter/sec",
+            "range": "stddev: 7.922013968727008e-7",
+            "extra": "mean: 5.903733546009392 usec\nrounds: 38243"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_save",
+            "value": 3408.661128408912,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0001031429485227354",
+            "extra": "mean: 293.3703182359984 usec\nrounds: 1678"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_load_from_son",
+            "value": 38125.90920363699,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000003081094927463706",
+            "extra": "mean: 26.2288826912646 usec\nrounds: 18430"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_load_from_db",
+            "value": 3293.2961574231645,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000018819057495192652",
+            "extra": "mean: 303.64715233580716 usec\nrounds: 1477"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_basic_doc_create_delete",
+            "value": 1128.851664584429,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00004038610291020303",
+            "extra": "mean: 885.8559821215625 usec\nrounds: 839"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_big_doc_to_mongo",
+            "value": 163.43361977375403,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0023985671474229826",
+            "extra": "mean: 6.118692111111101 msec\nrounds: 153"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_big_doc_validation",
+            "value": 444.90900771952937,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00011041656246053975",
+            "extra": "mean: 2.247650604166684 msec\nrounds: 432"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_big_doc_save",
+            "value": 56.61257989990733,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00335752441011992",
+            "extra": "mean: 17.66391854545454 msec\nrounds: 55"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_big_doc_load_from_son",
+            "value": 56.4994917940102,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0038959335124879612",
+            "extra": "mean: 17.699274245613925 msec\nrounds: 57"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_big_doc_load_from_db",
+            "value": 57.405646965824374,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0035175872466465833",
+            "extra": "mean: 17.419889032786887 msec\nrounds: 61"
+          },
+          {
+            "name": "benchmarks/test_basic_doc_ops.py::test_big_doc_create_delete",
+            "value": 23.349996866061687,
+            "unit": "iter/sec",
+            "range": "stddev: 0.004955602236519851",
+            "extra": "mean: 42.82655821052641 msec\nrounds: 19"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_pymongo_insert_w1",
+            "value": 5469.410011100266,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00001561419497602913",
+            "extra": "mean: 182.83507690417835 usec\nrounds: 4070"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_pymongo_insert_w0",
+            "value": 6899.5348605980835,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000014609854450200098",
+            "extra": "mean: 144.93730667422346 usec\nrounds: 5289"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_mongoengine_insert_w1",
+            "value": 2796.950771977244,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000024296495773237953",
+            "extra": "mean: 357.5322133013702 usec\nrounds: 1669"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_mongoengine_insert_single_assignment",
+            "value": 3256.9069225771036,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000018845902155874653",
+            "extra": "mean: 307.03978460911213 usec\nrounds: 2456"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_mongoengine_insert_w0",
+            "value": 3172.2085691085535,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00003548420811294647",
+            "extra": "mean: 315.23778409091733 usec\nrounds: 2552"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_mongoengine_insert_w0_novalidate",
+            "value": 3242.767919394303,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00002449413980329415",
+            "extra": "mean: 308.3785287313388 usec\nrounds: 2680"
+          },
+          {
+            "name": "benchmarks/test_inserts.py::test_mongoengine_insert_w0_novalidate_force",
+            "value": 3263.712819911848,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000029358809032777626",
+            "extra": "mean: 306.3995073031609 usec\nrounds: 2807"
+          },
+          {
+            "name": "benchmarks/test_save_with_indexes.py::test_save_with_indexes[0 indexes]",
+            "value": 3734.2680582478893,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000019085952275630354",
+            "extra": "mean: 267.79009551585267 usec\nrounds: 2743"
+          },
+          {
+            "name": "benchmarks/test_save_with_indexes.py::test_save_with_indexes[1 index]",
+            "value": 3759.891528638981,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000017440585383022193",
+            "extra": "mean: 265.9651195740702 usec\nrounds: 1221"
+          },
+          {
+            "name": "benchmarks/test_save_with_indexes.py::test_save_with_indexes[2 indexes]",
+            "value": 3691.0613250044175,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000018291248242975375",
+            "extra": "mean: 270.92478611116087 usec\nrounds: 1440"
+          },
+          {
+            "name": "benchmarks/test_save_with_indexes.py::test_save_with_indexes[1 index (auto_create)]",
+            "value": 2259.2364170344185,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000024876452165584628",
+            "extra": "mean: 442.6274260011476 usec\nrounds: 1723"
+          },
+          {
+            "name": "benchmarks/test_save_with_indexes.py::test_save_with_indexes[2 indexes (auto_create)]",
+            "value": 2234.720608613711,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00002288743409521225",
+            "extra": "mean: 447.4832317496464 usec\nrounds: 1726"
           }
         ]
       }
