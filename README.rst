@@ -159,7 +159,7 @@ Continuous Benchmarking
 
 This project uses `pytest-benchmark` in conjunction with GitHub Actions to monitor performance regressions.
 
-Benchmark results are automatically generated and updated on each push to the `main` branch and on pull requests. You can view the latest benchmark results [here](https://mongoengine.github.io/mongoengine/dev/benchmarks/).
+Benchmark results are automatically generated and updated on each push to the `main` branch and on pull requests. You can view the latest benchmark results [here](https://mongoengine.github.io/mongoengine/dev/bench/).
 
 To run the benchmarks locally:
 
