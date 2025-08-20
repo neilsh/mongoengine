@@ -47,6 +47,7 @@ CLASSIFIERS = [
 install_require = ["pymongo>=3.12,<5.0"]
 tests_require = [
     "pytest",
+    "pytest-benchmark",
     "pytest-cov",
     "coverage",
     "blinker",
