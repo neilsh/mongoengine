@@ -37,6 +37,7 @@ jobs:
           name: Pytest Benchmark (python ${{ matrix.python-version }} x mongo ${{ matrix.mongodb-version }})
           tool: 'pytest'
           output-file-path: output.json
+          benchmark-data-dir-path: 'dev/benchmarks'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
