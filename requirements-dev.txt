@@ -2,5 +2,7 @@ pre-commit
 ipdb
 ipython
 tox
+pytest-benchmark
 flake8
+plotly
 -e .[test]

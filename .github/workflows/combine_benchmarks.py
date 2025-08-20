@@ -9,81 +9,77 @@ to the benchmark names, and then combines all benchmarks into a single JSON file
 named 'output.json'.
 """
 
-import glob
 import json
+import glob
 import os
+from collections import defaultdict
+import plotly.graph_objects as go
 
-
-def combine_benchmark_results(
-    results_path="benchmark-results", output_file="output.json"
-):
+def generate_charts(data_dir="benchmark-results", output_dir="dev/bench"):
     """
-    Finds, combines, and writes benchmark results.
+    Generates interactive charts from benchmark data and saves them as an HTML file.
 
-    :param results_path: The directory containing the benchmark result artifacts.
-    :param output_file: The name of the combined JSON file to write.
+    :param data_dir: Directory containing benchmark JSON artifacts.
+    :param output_dir: Directory to save the output HTML file.
     """
-    all_benchmarks = []
-    template_data = None
-    artifact_dirs = sorted(glob.glob(os.path.join(results_path, "benchmark-result-*")))
-
+    # Group data by benchmark name
+    benchmarks = defaultdict(lambda: defaultdict(list))
+    
+    artifact_dirs = sorted(glob.glob(os.path.join(data_dir, 'benchmark-result-*')))
     if not artifact_dirs:
-        print(f"Warning: No benchmark artifact directories found in '{results_path}'.")
-        # Create an empty output file to prevent the workflow from failing
-        with open(output_file, "w") as f:
-            json.dump({"benchmarks": []}, f)
+        print("No benchmark artifacts found.")
         return
 
-    print(f"Found {len(artifact_dirs)} benchmark artifact directories.")
-
     for artifact_dir in artifact_dirs:
-        try:
-            fname = os.path.basename(artifact_dir)
-            # e.g., benchmark-result-3.10-7.0 -> ['3.10', '7.0']
-            parts = fname.replace("benchmark-result-", "").split("-")
-            py_ver, mongo_ver = parts[0], parts[1]
-            prefix = f"py{py_ver}, mongo{mongo_ver}: "
-
-            json_files = glob.glob(os.path.join(artifact_dir, "*.json"))
-            if not json_files:
-                print(f"Warning: No JSON file found in '{artifact_dir}'. Skipping.")
-                continue
-
-            json_file_path = json_files[0]
-
-            with open(json_file_path) as f:
-                data = json.load(f)
-                if template_data is None:
-                    # Use the metadata from the first file as a template
-                    template_data = data.copy()
-                    template_data["benchmarks"] = []
-
-                for bench in data.get("benchmarks", []):
-                    bench["name"] = prefix + bench["name"]
-                    all_benchmarks.append(bench)
-            print(f"Processed '{json_file_path}' for py{py_ver}, mongo{mongo_ver}.")
-
-        except (IndexError, ValueError) as e:
-            print(f"Error processing directory '{artifact_dir}': {e}. Skipping.")
+        json_file = glob.glob(os.path.join(artifact_dir, '*.json'))
+        if not json_file:
             continue
 
-    if template_data is None:
-        print(
-            "Warning: No valid benchmark data was processed. Creating empty output file."
+        with open(json_file[0], 'r') as f:
+            data = json.load(f)
+            commit_info = data.get('commit_info', {})
+            commit_hash = commit_info.get('id', 'unknown')
+            
+            matrix_combo = os.path.basename(artifact_dir).replace('benchmark-result-', '')
+            
+            for bench in data.get('benchmarks', []):
+                base_name = bench['name']
+                # Store as (commit_hash, mean_performance)
+                benchmarks[base_name][matrix_combo].append((commit_hash, bench['stats']['mean']))
+
+    if not benchmarks:
+        print("No benchmark data found to plot.")
+        return
+
+    # Create figures
+    figs = []
+    for base_name, matrix_data in benchmarks.items():
+        fig = go.Figure()
+        for matrix_combo, points in matrix_data.items():
+            # Sort by commit date if available, otherwise by hash
+            points.sort(key=lambda x: x[0]) 
+            commits = [p[0][:7] for p in points]
+            means = [p[1] for p in points]
+            
+            fig.add_trace(go.Scatter(x=commits, y=means, mode='lines+markers', name=matrix_combo))
+        
+        fig.update_layout(
+            title=base_name,
+            xaxis_title="Commit",
+            yaxis_title="Time (seconds)",
+            legend_title="Matrix Combination"
         )
-        template_data = {"benchmarks": []}
+        figs.append(fig.to_html(full_html=False, include_plotlyjs='cdn'))
 
-    # Sort for consistent output
-    all_benchmarks.sort(key=lambda x: x["name"])
-    template_data["benchmarks"] = all_benchmarks
-
-    with open(output_file, "w") as f:
-        json.dump(template_data, f, indent=2)
-
-    print(
-        f"Successfully combined {len(all_benchmarks)} benchmarks into '{output_file}'."
-    )
-
+    # Write to HTML file
+    os.makedirs(output_dir, exist_ok=True)
+    with open(os.path.join(output_dir, "index.html"), "w") as f:
+        f.write("<html><head><title>Benchmark Results</title></head><body>")
+        for fig_html in figs:
+            f.write(fig_html)
+        f.write("</body></html>")
+    
+    print(f"Generated benchmark report at {os.path.join(output_dir, 'index.html')}")
 
 if __name__ == "__main__":
-    combine_benchmark_results()
+    generate_charts()

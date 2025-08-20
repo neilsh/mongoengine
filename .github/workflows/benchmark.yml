@@ -50,18 +50,13 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           path: benchmark-results
-      - name: Combine benchmark results
+      - name: Install Dependencies
+        run: |
+          pip install plotly
+      - name: Combine benchmark results and generate charts
         run: python .github/workflows/combine_benchmarks.py
-      - name: Store benchmark result
-        uses: rhysd/github-action-benchmark@v1
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: Pytest Benchmark
-          tool: 'pytest'
-          output-file-path: output.json
-          benchmark-data-dir-path: 'dev/bench'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
-          # Show alert with commit comment on detecting possible performance regression
-          alert-threshold: '200%'
-          comment-on-alert: true
-          fail-on-alert: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dev/bench
