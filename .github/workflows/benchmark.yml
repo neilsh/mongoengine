@@ -51,39 +51,7 @@ jobs:
         with:
           path: benchmark-results
       - name: Combine benchmark results
-        run: |
-          import json
-          import glob
-          import os
-
-          all_benchmarks = []
-          template_data = None
-          artifact_dirs = glob.glob('benchmark-results/benchmark-result-*')
-
-          for artifact_dir in artifact_dirs:
-              fname = os.path.basename(artifact_dir)
-              parts = fname.replace('benchmark-result-', '').split('-')
-              py_ver, mongo_ver = parts[0], parts[1]
-              suffix = f" (py{py_ver}, mongo{mongo_ver})"
-              
-              json_file_path = glob.glob(os.path.join(artifact_dir, '*.json'))[0]
-
-              with open(json_file_path, 'r') as f:
-                  data = json.load(f)
-                  if template_data is None:
-                      template_data = data.copy()
-                      template_data['benchmarks'] = []
-                  
-                  for bench in data['benchmarks']:
-                      bench['name'] += suffix
-                      all_benchmarks.append(bench)
-
-          all_benchmarks.sort(key=lambda x: x['name'])
-          template_data['benchmarks'] = all_benchmarks
-
-          with open('output.json', 'w') as f:
-              json.dump(template_data, f)
-        shell: python
+        run: python .github/workflows/combine_benchmarks.py
       - name: Store benchmark result
         uses: rhysd/github-action-benchmark@v1
         with:
