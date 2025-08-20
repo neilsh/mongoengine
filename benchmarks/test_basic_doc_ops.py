@@ -1,5 +1,3 @@
-import mongoengine
-import pytest
 from mongoengine import (
     BooleanField,
     Document,
@@ -133,7 +131,10 @@ def test_big_doc_to_mongo(benchmark):
         name = StringField()
         contacts = ListField(EmbeddedDocumentField(Contact))
 
-    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
+    company = Company(
+        name="MongoDB, Inc.",
+        contacts=[Contact(name=f"Contact {x}") for x in range(1000)],
+    )
     benchmark(company.to_mongo)
 
 
@@ -145,7 +146,10 @@ def test_big_doc_validation(benchmark):
         name = StringField()
         contacts = ListField(EmbeddedDocumentField(Contact))
 
-    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
+    company = Company(
+        name="MongoDB, Inc.",
+        contacts=[Contact(name=f"Contact {x}") for x in range(1000)],
+    )
     benchmark(company.validate)
 
 
@@ -158,7 +162,10 @@ def test_big_doc_save(benchmark, db):
         contacts = ListField(EmbeddedDocumentField(Contact))
 
     Company.drop_collection()
-    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
+    company = Company(
+        name="MongoDB, Inc.",
+        contacts=[Contact(name=f"Contact {x}") for x in range(1000)],
+    )
     company.save()
 
     def save_company():
@@ -177,7 +184,10 @@ def test_big_doc_load_from_son(benchmark):
         name = StringField()
         contacts = ListField(EmbeddedDocumentField(Contact))
 
-    company = Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)])
+    company = Company(
+        name="MongoDB, Inc.",
+        contacts=[Contact(name=f"Contact {x}") for x in range(1000)],
+    )
     son = company.to_mongo()
     benchmark(lambda: Company._from_son(son))
 
@@ -191,7 +201,10 @@ def test_big_doc_load_from_db(benchmark, db):
         contacts = ListField(EmbeddedDocumentField(Contact))
 
     Company.drop_collection()
-    Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)]).save()
+    Company(
+        name="MongoDB, Inc.",
+        contacts=[Contact(name=f"Contact {x}") for x in range(1000)],
+    ).save()
     benchmark(lambda: Company.objects[0])
 
 
@@ -206,7 +219,10 @@ def test_big_doc_create_delete(benchmark, db):
     Company.drop_collection()
 
     def create_and_delete():
-        Company(name="MongoDB, Inc.", contacts=[Contact(name=f"Contact {x}") for x in range(1000)]).save()
+        Company(
+            name="MongoDB, Inc.",
+            contacts=[Contact(name=f"Contact {x}") for x in range(1000)],
+        ).save()
         Company.objects.first().delete()
 
     benchmark(create_and_delete)

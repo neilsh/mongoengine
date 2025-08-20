@@ -1,7 +1,9 @@
 import os
+
 import pytest
-import mongoengine
 from pymongo import MongoClient
+
+import mongoengine
 
 
 @pytest.fixture(scope="module")

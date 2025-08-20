@@ -165,7 +165,7 @@ To run the benchmarks locally:
 
 .. code-block:: bash
 
-    pytest benchmarks/ 
+    pytest benchmarks/
 
 By default, this will use ``time.perf_counter`` to measure wall time. In shared environments (like GitHub Actions), it can be more reliable to measure CPU time instead. This can be done with the ``--benchmark-timer`` option:
 
